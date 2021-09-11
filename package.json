@@ -1,0 +1,15 @@
+{
+  "name": "cnft-crawler",
+  "version": "1.0.0",
+  "description": "CNFT.io crawler for specific projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Markus Velten",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.4",
+    "lodash": "^4.17.21"
+  }
+}
