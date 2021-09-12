@@ -1,10 +1,18 @@
 # CNFT crawler for rarities on sale
 
-First iteration of this script solely works on the project "Clay Nation by Clay Mates"
+First iteration of this script which solely works on the project "Clay Nation by Clay Mates"
+
+Gathers information about currently offered NFTs and tries to evaluate them against the provided
+rarity chart (de-duplicated version).
 
 ### pre-requisites
 In order to run the script, you have to have NodeJS installed and should be familiar
 with editing a simple configuration file
+
+### prior to first run
+* clone the project from github (`git clone https://github.com/slippyex/cnft-crawler.git`)
+* `cd cnft-crawler/`
+* `npm install`
 
 ### usage
 simply edit the file under /config/ to fit your lookup criteria
@@ -12,6 +20,31 @@ and run it via
 `node index.js`
 
 Have a closer look to the output and decide if you want to check and buy
+
+### example configuration
+```javascript
+module.exports = {
+// project to crawl (as shown on cnft.io projects list)
+//  project: 'Clay Nation by Clay Mates',
+project: 'Bitlands',
+// threshold of trait in percent
+// if 5 that means, that the trait has to have a minimum of 5% in order to be considered
+threshold: 5,
+// minimum amount of traits with the above threshold in order to be considered valuable
+// if 3 that means, we have to have at least 3 traits with a minimum of 5% in rarity
+minTrigger: 5,
+// if any of the given extra tags is found in the traits, we consider the item
+// valuable, regardless of the percent coverage above
+//extraTags: ['blue clay', 'green clay', 'laser eyes', 'duck', 'angel wings', 'orangutan'],
+extraTags: ['rare'],
+// minimum price in ADA
+minPrice: 1000,
+// maximum price in ADA
+maxPrice: 1200,
+// maximum amount of pages to crawl - each page has an output of 25 items
+maxPages: 15
+}
+```
 
 ### example output
 ```text

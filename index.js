@@ -1,37 +1,41 @@
 const axios = require('axios');
+const fs = require('fs');
 const _ = require('lodash');
-const rarityChart = require('./rarities/claynation.json');
+let rarityChart = {};
+let isEstimation = false;
 const config = require('./config');
 
-// const threshold = 5;
-// const minTrigger = 3;
-// const minPrice = 50;
-// const maxPrice = 100;
-// const maxPages = 15;
-const queryPrefix = `sort=price&order=asc&&project=Clay+Nation+by+Clay+Mates&verified=true`;
+const queryPrefix = `sort=price&order=asc&&project=${config.project.replace(/ /g, '+')}&verified=true`;
 
 const estimateRarity = (stats, name) => {
-    const collect = [];
-    const statsCollect = [];
-    delete stats.Project;
-    const rare = [];
-    for (const stat of Object.keys(stats)) {
-      const key = stat.toLowerCase();
-      const block = rarityChart[key];
-      const itemValue = stats[stat];
-      const val = Number.parseInt(block[itemValue], 10);
-      const percentage = (val / 100);
-      if (percentage <= config.threshold) {
-        rare.push({stat, itemValue});
-      }
-      statsCollect.push(`\t${stat}: ${itemValue} (${percentage}%) ${percentage <= config.threshold ? '***' : ''}`);
-      collect.push(percentage);
+  const collect = [];
+  const statsCollect = [];
+  delete stats.Project;
+  const rare = [];
+  let exceptional = false;
+  for (const stat of Object.keys(stats)) {
+    const key = stat.toLowerCase();
+    const block = rarityChart[key];
+    const itemValue = stats[stat];
+    const val = Number.parseInt(block[itemValue], 10);
+    const percentage = (val / 100);
+    if (percentage <= config.threshold) {
+      rare.push({stat, itemValue});
     }
-    if (rare.length > config.minTrigger) {
-      console.log(`${name} >> overall rarity ->> ${_.round(_.mean(collect))}%`);
-      statsCollect.forEach((o) => console.log(o));
+    statsCollect.push(`\t${stat}: ${itemValue} (${percentage}%) ${
+      percentage <= config.threshold ? '***' : ''} ${
+      config.extraTags.includes(itemValue.toLowerCase()) ? '!!!!!!' : ''}`);
+    collect.push(percentage);
+
+    if (!exceptional && config.extraTags.includes(itemValue.toLowerCase())) {
+      exceptional = true;
     }
-    return rare.length > config.minTrigger;
+  }
+  if (rare.length > config.minTrigger || exceptional) {
+    console.log(`${name} >> overall rarity ->> ${_.round(_.mean(collect))}%`);
+    statsCollect.forEach((o) => console.log(o));
+  }
+  return rare.length > config.minTrigger || exceptional;
 }
 
 const crawlData = async (page) => {
@@ -45,23 +49,57 @@ const crawlData = async (page) => {
       const name = Object.keys(stat)[0];
       statsObj[name] = stat[name];
     }
-    const worthChecking = estimateRarity(statsObj, header);
-    if (worthChecking) {
-      console.log(`at least ${config.minTrigger + 1} items below ${config.threshold}% - considered worth checking under: https://cnft.io/token.php?id=${entry.id}`);
-    }
-  }
+    if (isEstimation) {
+      const worthChecking = estimateRarity(statsObj, header);
+      if (worthChecking) {
+        console.log(`at least ${config.minTrigger + 1} items below ${
+          config.threshold}% - considered worth checking under: https://cnft.io/token.php?id=${entry.id}`);
+      }
+    } else {
+      // we have no rarity chart for the given project, simply return the entries ordered by price
+      console.log(header);
+      let exceptional = false;
+      const collect = [];
+      for (const key of Object.keys(statsObj)) {
+        if ((config.extraTags || []).length > 0) {
+          if (config.extraTags.includes((String(statsObj[key])).toLowerCase())) {
+            exceptional = true;
+          }
+          collect.push(`\t${key}: ${statsObj[key]} ${exceptional ? '!!!!!' : ''}`);
+        } else {
+          console.log(`\t${key}: ${statsObj[key]}`);
+        }
+      } // end-for stats
+      if (collect.length > 0) {
+        collect.forEach(o => console.log(o));
+      }
+      console.log(`check under https://cnft.io/token.php?id=${entry.id}`);
+    } // end-if no-estimation
+  } // end-for assets
 }
-(async function() {
+(async function () {
+
+  try {
+    rarityChart = JSON.parse(fs.readFileSync(`${__dirname}/rarities/${config.project}/rarity_chart.json`).toString());
+    isEstimation = Object.keys(rarityChart).length > 0;
+  } catch (err) {
+    console.log(`no rarity chart found for project ${config.project} - continuing without evaluation`);
+  }
   try {
     const query = `${queryPrefix}&page=1&pricemin=${config.minPrice}&pricemax=${config.maxPrice}`;
 
     const res = await axios.post(`https://api.cnft.io/market/listings`, query);
     const found = res.data.found;
-    const pages = parseFloat(found) / 25 > config.maxPages ? config.maxPages : parseFloat(found) / 25;
-    for (let page = 1; page <=pages; page++) {
+    let pages = _.round(parseFloat(found) / 25 > config.maxPages ? config.maxPages : parseFloat(found) / 25) + 1;
+    for (let page = 1; page <= pages; page++) {
+      console.log(`crawling page ${page} of ${pages}`);
       await crawlData(page);
     }
   } catch (err) {
-    console.log(err.data);
+    if (err.data) {
+      console.log(err.data);
+    } else {
+      console.error(err);
+    }
   }
 })();
