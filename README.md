@@ -1,6 +1,4 @@
-# CNFT crawler for rarities on sale
-
-First iteration of this script which solely works on the project "Clay Nation by Clay Mates"
+# CNFT crawler and price floor checker for rarities on sale
 
 Gathers information about currently offered NFTs and tries to evaluate them against the provided
 rarity chart (de-duplicated version).
@@ -18,6 +16,23 @@ with editing a simple configuration file
 simply edit the file under /config/ to fit your lookup criteria
 and run it via 
 `node index.js`
+
+Additionally, you can override any parameter in the config file by using it as an argument
+
+`node index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minprice=20 --maxprice=120`
+
+for instance would look for the given project and checks for trait tags epic and rare and flags them
+
+
+You can also check for the floor of a given project by calling it via
+`node index.js --project="Spacebudz" --floor`
+
+which would give an output similar to this
+```text
+❯ node index.js --project="Spacebudz" --floor
+entering cnft crawler with floor check on project Spacebudz
+Current floor for project Spacebudz is 3550 ADA
+```
 
 Have a closer look to the output and decide if you want to check and buy
 
