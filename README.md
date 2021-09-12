@@ -19,7 +19,7 @@ and run it via
 
 Additionally, you can override any parameter in the config file by using it as an argument
 
-`node index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minprice=20 --maxprice=120`
+`node index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minPrice=20 --maxPrice=120`
 
 for instance would look for the given project and checks for trait tags epic and rare and flags them
 
