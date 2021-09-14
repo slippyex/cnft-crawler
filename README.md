@@ -40,6 +40,11 @@ Current floor for project Spacebudz is 3550 ADA
 
 Have a closer look to the output and decide if you want to check and buy
 
+```text
+❯ node src/index.js --help
+```
+provides an overview of all possible combinations and options, you can use
+
 ### example configuration
 ```javascript
 module.exports = {
