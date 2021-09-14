@@ -1,12 +1,11 @@
 {
   "name": "cnft-crawler",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Crawler and floor checker for projects hosted on cnft.io",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier": "prettier --write index.js config/index.js"
+    "start": "node src/index.js",
+    "prettier": "prettier --write src/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +16,7 @@
   "dependencies": {
     "axios": "^0.21.4",
     "command-line-args": "^5.2.0",
+    "command-line-usage": "^6.1.1",
     "dayjs": "^1.10.7",
     "lodash": "^4.17.21"
   },
