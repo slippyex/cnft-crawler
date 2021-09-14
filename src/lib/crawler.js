@@ -146,6 +146,10 @@ const crawlPageData = async (page, config, rarityChart) => {
       }% - considered worth checking under: https://cnft.io/token.php?id=${
         entry.id
       }`;
+    } else if (processedItem.exceptional) {
+      processedItem.link = `match in given item - considered worth checking under: https://cnft.io/token.php?id=${
+        entry.id
+      }`;
     }
     processedResults.push(processedItem);
   } // end-for assets

@@ -19,6 +19,8 @@ module.exports = {
     'orangutan'
   ],
   //  extraTags: ['rare'],
+  // filters results just based on the given rarity criteria
+  filter: 'rarity',
   // minimum price in ADA
   minPrice: 400,
   // maximum price in ADA

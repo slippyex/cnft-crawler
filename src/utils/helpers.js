@@ -50,7 +50,6 @@ module.exports.estimateRarity = (processedItem, config, rarityChart) => {
   processedItem.overallRarity =
     collectPercentage.length > 0 ? _.round(_.mean(collectPercentage)) : 0;
   delete processedItem.stats;
-  return processedItem;
 };
 
 

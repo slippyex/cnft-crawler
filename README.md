@@ -15,21 +15,25 @@ with editing a simple configuration file
 ### usage
 simply edit the file under /config/ to fit your lookup criteria
 and run it via 
-`node index.js`
+`❯ node src/index.js`
 
 Additionally, you can override any parameter in the config file by using it as an argument
 
-`node index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minPrice=20 --maxPrice=120`
+```text
+❯ node src/index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minPrice=20 --maxPrice=120 --filter="extraTags"
+
+❯ node src/index.js --minPrice=600 --maxPrice=1800 --project="Cardano Waifus" --extraTags="SS" --filter="extraTags"
+```
+
 
 for instance would look for the given project and checks for trait tags epic and rare and flags them
 
-
 You can also check for the floor of a given project by calling it via
-`node index.js --project="Spacebudz" --floor`
+`❯ node src/index.js --project="Spacebudz" --floor`
 
 which would give an output similar to this
 ```text
-❯ node index.js --project="Spacebudz" --floor
+❯ node src/index.js --project="Spacebudz" --floor
 entering cnft crawler with floor check on project Spacebudz
 Current floor for project Spacebudz is 3550 ADA
 ```
@@ -52,6 +56,8 @@ minTrigger: 5,
 // valuable, regardless of the percent coverage above
 //extraTags: ['blue clay', 'green clay', 'laser eyes', 'duck', 'angel wings', 'orangutan'],
 extraTags: ['rare'],
+// filters results just based on the given rarity criteria
+filter: 'rarity',  
 // minimum price in ADA
 minPrice: 1000,
 // maximum price in ADA
