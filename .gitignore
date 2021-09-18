@@ -1,3 +1,6 @@
 .idea
 node_modules
 dist/floor-stats.json
+sandbox.js
+.env
+auth-token

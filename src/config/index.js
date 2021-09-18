@@ -4,6 +4,7 @@ module.exports = {
   //  project: 'Bitlands',
   // threshold of trait in percent
   // if 5 that means, that the trait has to have a minimum of 5% in order to be considered
+  verified: true,
   threshold: 4,
   // minimum amount of traits with the above threshold in order to be considered valuable
   // if 3 that means, we have to have at least 3 traits with a minimum of 5% in rarity
@@ -22,9 +23,9 @@ module.exports = {
   // filters results just based on the given rarity criteria
   filter: 'rarity',
   // minimum price in ADA
-  minPrice: 400,
+  minPrice: 1600,
   // maximum price in ADA
-  maxPrice: 800,
+  maxPrice: 2800,
   // maximum amount of pages to crawl - each page has an output of 25 items
   maxPages: 15
 };

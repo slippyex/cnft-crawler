@@ -2,16 +2,18 @@ const axios = require('axios');
 const dayjs = require('dayjs');
 const fs = require('fs');
 const _ = require('lodash');
-const statsFile = __dirname + '/../../dist/floor-stats.json';
+const helpers = require('../utils/helpers');
 
+const statsFile = __dirname + '/../../dist/floor-stats.json';
 /**
  * functionality to grab current floor price in ADA for a given
  * project on cnft.io
  *
  * @param config
+ * @param extraData
  * @returns {Promise<void>}
  */
-module.exports = async (config) => {
+module.exports = async (config, extraData) => {
   console.log(
     `entering cnft crawler with floor check on project ${config.project}`
   );
@@ -27,6 +29,11 @@ module.exports = async (config) => {
     );
     const firstItem = _.get(resFloor, 'data.assets[0]', {});
     if (Object.keys(firstItem).length > 0) {
+      const processedItem = helpers.transformEntry(
+        config.project,
+        firstItem,
+        extraData
+      );
       const price = firstItem.price / 1000000;
       console.log(
         `Current floor for project ${config.project} is ${price} ADA`

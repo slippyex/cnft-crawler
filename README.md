@@ -22,7 +22,7 @@ Additionally, you can override any parameter in the config file by using it as a
 ```text
 ❯ node src/index.js --project="Cardano Caricatures" --extraTags="epic" "rare" --minPrice=20 --maxPrice=120 --filter="extraTags"
 
-❯ node src/index.js --minPrice=600 --maxPrice=1800 --project="Cardano Waifus" --extraTags="SS" --filter="extraTags"
+❯ node src/index.js crawl --minPrice=600 --maxPrice=1800 --project="Cardano Waifus" --extraTags="SS" --filter="extraTags"
 ```
 
 
@@ -33,7 +33,7 @@ You can also check for the floor of a given project by calling it via
 
 which would give an output similar to this
 ```text
-❯ node src/index.js --project="Spacebudz" --floor
+❯ node src/index.js floor --project="Spacebudz" 
 entering cnft crawler with floor check on project Spacebudz
 Current floor for project Spacebudz is 3550 ADA
 ```

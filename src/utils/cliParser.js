@@ -11,10 +11,32 @@ module.exports = () => {
       description: 'The project name as listed on cnft.io'
     },
     {
+      name: 'unverified',
+      alias: 'u',
+      type: Boolean,
+      description: 'toggle for cnft-verified projects'
+    },
+    {
+      name: 'fakes',
+      type: Boolean,
+      description: 'toggle to list and mark fakes (invalid policy id)'
+    },
+    {
+      name: 'policy',
+      type: String,
+      description: 'if checking for unverified projects, you can pass in a policy id'
+    },
+    {
       name: 'floor',
       alias: 'f',
       type: Boolean,
       description: 'instead of crawling, just determine the floor price'
+    },
+    {
+      name: 'floorFilter',
+      type: String,
+      description:
+        'when determining a floor price, you can look for a certain value in traits'
     },
     {name: 'minPrice', type: Number, description: 'minimal price to look for'},
     {name: 'maxPrice', type: Number, description: 'maximal price to look for'},
@@ -103,6 +125,6 @@ module.exports = () => {
   }&sort=price&order=asc&project=${config.project.replace(
     / /g,
     '+'
-  )}&verified=true`;
+  )}&verified=${!config.unverified}`;
   return config;
 };

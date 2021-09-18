@@ -3,17 +3,16 @@ const fs = require('fs');
 const _ = require('lodash');
 const helpers = require('../utils/helpers');
 
-let extraData = {};
-
 /**
  * crawls through results of a given project (ordered by price asc)
  * and, if available, directly estimates the current value of an
  * offered item based on a rarity chart (see drop-in folder)
  *
  * @param config
+ * @param extraData
  * @returns {Promise<void>}
  */
-module.exports = async (config) => {
+module.exports = async (config, extraData) => {
   let rarityChart = {};
 
   console.log(
@@ -31,13 +30,11 @@ module.exports = async (config) => {
     );
 
     console.log(
-      `we found a rarity chart for project ${
-        config.project} - using it to derive overall rarity now`
+      `we found a rarity chart for project ${config.project} - using it to derive overall rarity now`
     );
   } catch (err) {
     console.log(
-      `no rarity chart found for project ${
-        config.project} - continuing without evaluation`
+      `no rarity chart found for project ${config.project} - continuing without evaluation`
     );
     if (config.filter && config.filter.toLowerCase() === 'rarity') {
       config.filter = 'all';
@@ -58,6 +55,7 @@ module.exports = async (config) => {
       const crawlingResults = await crawlPageData(
         page,
         config,
+        extraData,
         rarityChart
       );
       let filteredResults = crawlingResults;
@@ -69,7 +67,7 @@ module.exports = async (config) => {
           config.filter === 'rarity' ? o.worthChecking : o.exceptional
         );
       }
-      presentData(filteredResults);
+      presentData(filteredResults, config.fakes);
     }
   } catch (err) {
     if (err.data) {
@@ -84,56 +82,25 @@ module.exports = async (config) => {
  *
  * @param page
  * @param config
+ * @param extraData
  * @param rarityChart
  * @returns {Promise<*[]>}
  */
-const crawlPageData = async (page, config, rarityChart) => {
+const crawlPageData = async (page, config, extraData, rarityChart) => {
   const query = `${config.queryPrefix}&page=${page}`;
 
   const res = await axios.post(`https://api.cnft.io/market/listings`, query);
   const processedResults = [];
   for (const entry of res.data.assets) {
-    const processedItem = {
-      price: entry.price / 1000000,
-      name: entry.metadata.name,
-      stats: {},
-      worthChecking: false,
-      exceptional: false,
-      overallRarity: 0
-    };
+    const processedItem = helpers.transformEntry(
+      config.project,
+      entry,
+      extraData
+    );
 
-    for (const stat of entry.metadata.tags) {
-      const name = Object.keys(stat)[0];
-      if (_.isObject(stat[name])) {
-        const nested = _.get(stat[name], 'items');
-        if (nested) {
-          for (const itm of Object.keys(nested)) {
-            processedItem.stats[itm] = nested[itm];
-          }
-        } else {
-          processedItem.stats[name] = stat[name];
-        }
-      } else {
-        processedItem.stats[name] = stat[name];
-      }
+    if (config.unverified && config.policy) {
+      processedItem.policyVerified = config.policy === entry.policy;
     }
-
-    // for nifty-teddy project, we want to add rarity to a gathered item
-    if (config.project === 'NiftyTeddy') {
-      if (Object.keys(extraData).length === 0) {
-        const tmp = fs
-          .readFileSync(
-            `${__dirname}/../../rarities/NiftyTeddy/rarity_per_item.json`
-          )
-          .toString();
-        extraData = JSON.parse(tmp);
-      }
-      processedItem.stats.rarity = extraData[entry.metadata.name];
-    } // end-if NiftyTeddy
-    delete processedItem.stats.Project;
-    delete processedItem.stats.arweaveId;
-    delete processedItem.stats.uid;
-
     // checks, if rarity chart is available for the project
     // if not, we can still try to evaluate based on a provided
     // "extraTags" configuration
@@ -147,25 +114,30 @@ const crawlPageData = async (page, config, rarityChart) => {
         entry.id
       }`;
     } else if (processedItem.exceptional) {
-      processedItem.link = `match in given item - considered worth checking under: https://cnft.io/token.php?id=${
-        entry.id
-      }`;
+      processedItem.link = `match in given item - considered worth checking under: https://cnft.io/token.php?id=${entry.id}`;
     }
     processedResults.push(processedItem);
   } // end-for assets
   return processedResults;
 };
 
-const presentData = (filteredResults) => {
+const presentData = (filteredResults, fakeCheck) => {
   for (const entry of filteredResults) {
-    console.log(`${entry.name} - price ${entry.price} ADA`);
+    console.log(
+      `${entry.name} - price ${entry.price} ADA ${
+        entry.overallRarity > 0
+          ? '- overall rarity ' + entry.overallRarity + '%'
+          : ''
+      }`
+    );
+    if (fakeCheck && !entry.policyVerified) {
+      console.log(`!!!! ITEM HAS BEEN DETECTED AS FAKE - WRONG POLICY !!!!`);
+    }
     for (const trait of entry.traits) {
       console.log(
-        `\t${trait.name}: ${trait.value} ${
-          trait.exceptional ? '!!!' : ''
-        } ${trait.percentage ? trait.percentage + '%' : ''} ${
-          trait.valuable ? '***' : ''
-        }`
+        `\t${trait.name}: ${trait.value} ${trait.exceptional ? '!!!' : ''} ${
+          trait.percentage ? trait.percentage + '%' : ''
+        } ${trait.valuable ? '***' : ''}`
       );
     }
     if (entry.link) {
@@ -173,4 +145,4 @@ const presentData = (filteredResults) => {
     }
     console.log(`============================`);
   }
-}
+};

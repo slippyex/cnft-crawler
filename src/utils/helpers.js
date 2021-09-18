@@ -35,9 +35,11 @@ module.exports.estimateRarity = (processedItem, config, rarityChart) => {
       }
       // but in any case check for the extraTags
       if ((config.extraTags || []).length > 0) {
-        trait.exceptional = config.extraTags
-          .map((o) => o.toLowerCase())
-          .includes(itemValue.toLowerCase());
+        for (const et of config.extraTags) {
+          if (String(itemValue).toLowerCase().indexOf(et.toLowerCase()) !== -1) {
+            trait.exceptional = true;
+          }
+        }
         if (!exceptional && trait.exceptional) {
           exceptional = true;
         }
@@ -46,10 +48,83 @@ module.exports.estimateRarity = (processedItem, config, rarityChart) => {
     }
   }
   processedItem.worthChecking = valuable >= config.minTrigger;
+  if ((config.extraTags || []).length > 0) {
+    for (const et of config.extraTags) {
+      if (processedItem.name.toLowerCase().indexOf(et.toLowerCase()) !== -1) {
+        exceptional = true;
+        break;
+      }
+    }
+  }
   processedItem.exceptional = exceptional;
   processedItem.overallRarity =
     collectPercentage.length > 0 ? _.round(_.mean(collectPercentage)) : 0;
   delete processedItem.stats;
 };
 
+/**
+ * transforms an entry from cnft into a crawler-specific format
+ *
+ * @param project
+ * @param entry
+ * @param extraData
+ * @returns {{overallRarity: number, stats: {}, price: number, exceptional: boolean, name, worthChecking: boolean}}
+ */
+module.exports.transformEntry = (project, entry, extraData) => {
+  const processedItem = {
+    price: entry.price / 1000000,
+    name: entry.metadata.name,
+    stats: {},
+    worthChecking: false,
+    exceptional: false,
+    overallRarity: 0
+  };
 
+  for (const stat of entry.metadata.tags) {
+    const name = Object.keys(stat)[0];
+ //   processedItem.name = name;
+    if (name === 'Race') {
+      processedItem.stats.race = stat[name][0];
+    }
+    unnestObject(stat[name], name, processedItem);
+  }
+
+  // for nifty-teddy project, we want to add rarity to a gathered item
+  if (project === 'NiftyTeddy') {
+    processedItem.stats.rarity = extraData[entry.metadata.name];
+  } // end-if NiftyTeddy
+
+  delete processedItem.stats.Project;
+  delete processedItem.stats.arweaveId;
+  delete processedItem.stats.uid;
+  return processedItem;
+};
+
+/**
+ * deep-un-nests a given project item
+ * regardless of the nested attributes names
+ *
+ * @param stat
+ * @param name
+ * @param processedItem
+ */
+const unnestObject = (stat, name, processedItem) => {
+  if (_.isObject(stat)) {
+    for (const itm of Object.keys(stat)) {
+      const nested = stat[itm];
+      if (_.isObject(nested)) {
+        // recursively call the same
+        // if we find an object here
+        unnestObject(nested, itm, processedItem);
+      } else {
+        // filter out undefined or empty attributes
+        if (stat[itm] || '') {
+          processedItem.stats[itm] = stat[itm];
+        }
+      }
+    }
+  } else {
+    // filter out undefined or empty attributes
+    processedItem.stats[name] = stat;
+  }
+}
