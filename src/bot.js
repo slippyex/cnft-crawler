@@ -36,11 +36,28 @@ const refreshItems = async () => {
       Math.random() < 0.5 ? -randomPercent : randomPercent;
     // cap it to at least 8 ADA (minimum price to set on listing)
     const calculatedPrice = Math.max(price + newPriceVariant, 8);
+    const listPrice = calculatedPrice * 1000000;
     console.log(
       `listed ${entry.metadata.name} for ${price} ADA - new price ${calculatedPrice}`
     );
+
+    // unlist existing item
+    await axios.post(`https://api.cnft.io/user/cancel`, {
+      token,
+      id: entry.id
+    });
+
+    // relist item with new price
+    await axios.post(`https://api.cnft.io/user/list`, {
+      token,
+      unit: entry.unit,
+      price: listPrice
+    });
   }
-}
+  await axios.post(`https://api.cnft.io/user/clearalerts`, {
+    token
+  });
+};
 (async function () {
   try {
     try {

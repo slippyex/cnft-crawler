@@ -6,20 +6,22 @@ const PROJECT_NAME = 'Dogs on the Chain';
 const API_PREFIX = `https://cnft.tools/api/${PROJECT}?sort=ASC&method=rarity`;
 const axios = require('axios');
 const fs = require('fs');
-const DROP_IN_FOLDER = `${__dirname}/../../rarities`
+const DROP_IN_FOLDER = `${__dirname}/../../rarities`;
 const push = (entries, mapped) => {
   for (const entry of entries) {
     mapped[entry.name] = {
       score: parseInt(entry.rarityScore),
       rank: parseInt(entry.rarityRank)
-    }
+    };
   }
   if (!fs.existsSync(`${DROP_IN_FOLDER}/${PROJECT_NAME}`)) {
     fs.mkdirSync(`${DROP_IN_FOLDER}/${PROJECT_NAME}`);
   }
-  fs.writeFileSync(`${DROP_IN_FOLDER}/${PROJECT_NAME}/rarity_ranks.json`,
-    JSON.stringify(mapped, null, 2));
-}
+  fs.writeFileSync(
+    `${DROP_IN_FOLDER}/${PROJECT_NAME}/rarity_ranks.json`,
+    JSON.stringify(mapped, null, 2)
+  );
+};
 (async function () {
   const mapped = {};
 

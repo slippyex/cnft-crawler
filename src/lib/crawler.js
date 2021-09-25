@@ -64,9 +64,11 @@ module.exports = async (config, extraData, returnResults, progress) => {
     console.log(
       `no rarity score/rank lookup found for project ${config.project} - continuing without evaluation`
     );
-    if (config.filter &&
+    if (
+      config.filter &&
       config.filter.toLowerCase() === 'rarity' &&
-      Object.keys(rarityChart).length === 0) {
+      Object.keys(rarityChart).length === 0
+    ) {
       config.filter = 'all';
     }
   }
@@ -88,7 +90,9 @@ module.exports = async (config, extraData, returnResults, progress) => {
     const collectReturnedPages = [];
     for (let page = 1; page <= pages; page++) {
       if (progressBar) {
-        process.stdout.write('\rcrawling in progress: ' + progressBar.update(page, pages));
+        process.stdout.write(
+          '\rcrawling in progress: ' + progressBar.update(page, pages)
+        );
       } else {
         console.log(`crawling page ${page} of ${pages}`);
       }
@@ -101,7 +105,9 @@ module.exports = async (config, extraData, returnResults, progress) => {
       );
       let filteredResults = crawlingResults;
       if (config.top && Object.keys(rarityScores).length > 0) {
-        filteredResults = crawlingResults.filter((o) => o.rarityRank !== -1 && o.rarityRank <= config.top);
+        filteredResults = crawlingResults.filter(
+          (o) => o.rarityRank !== -1 && o.rarityRank <= config.top
+        );
       } else if (
         config.filter &&
         ['rarity', 'extratags'].includes(config.filter.toLowerCase())
@@ -135,7 +141,13 @@ module.exports = async (config, extraData, returnResults, progress) => {
  * @param rarityScore
  * @returns {Promise<*[]>}
  */
-const crawlPageData = async (page, config, extraData, rarityChart, rarityScore) => {
+const crawlPageData = async (
+  page,
+  config,
+  extraData,
+  rarityChart,
+  rarityScore
+) => {
   const query = `${config.queryPrefix}&page=${page}`;
 
   const res = await axios.post(`https://api.cnft.io/market/listings`, query);
@@ -179,9 +191,8 @@ const presentData = (filteredResults, fakeCheck) => {
   for (const entry of filteredResults) {
     console.log(
       chalk`${entry.name} - price {red {bold ${entry.price} ADA}} {yellow ${
-        entry.rarityScore > -1 ? '- score: ' + entry.rarityScore : ''}${
-        entry.rarityRank > -1 ? ' - rank: ' + entry.rarityRank : ''
-      }}${
+        entry.rarityScore > -1 ? '- score: ' + entry.rarityScore : ''
+      }${entry.rarityRank > -1 ? ' - rank: ' + entry.rarityRank : ''}}${
         entry.overallRarity > 0
           ? ' - overall rarity ' + entry.overallRarity + '%'
           : ''

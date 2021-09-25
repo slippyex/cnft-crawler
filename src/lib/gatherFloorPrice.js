@@ -36,24 +36,28 @@ module.exports = async (config, extraData) => {
       const firstItem = assets[0];
       const maxLength = Math.min(assets.length, 25);
       const groupedByPrice = _.groupBy(assets.slice(0, maxLength), 'price');
-      const meanFloor = _.round(_.mean(Object.keys(groupedByPrice).map(o => parseInt(o) / 1000000 )));
+      const meanFloor = _.round(
+        _.mean(Object.keys(groupedByPrice).map((o) => parseInt(o) / 1000000))
+      );
       const price = firstItem.price / 1000000;
       clear();
       console.log(
         chalk.yellow(
-          figlet.textSync('CNFT toolkit', { horizontalLayout: 'full' })
+          figlet.textSync('CNFT toolkit', {horizontalLayout: 'full'})
         )
       );
       console.log(
         chalk`\nCurrent floor for project ${config.project} is {red {bold {underline ${price}}}} ADA`
       );
-      console.log(chalk`\nBased on the first ${maxLength} items, the mean floor is at {yellow {bold {underline ${meanFloor}}}} ADA`);
+      console.log(
+        chalk`\nBased on the first ${maxLength} items, the mean floor is at {yellow {bold {underline ${meanFloor}}}} ADA`
+      );
       console.log(`\nin detail these are:`);
       console.log(`=====================================`);
       for (const entry of Object.keys(groupedByPrice)) {
         const p = parseInt(entry) / 1000000;
         const amount = groupedByPrice[entry].length;
-        console.log(`${amount} item${amount > 1 ? 's': ''} at\tADA ${p}`);
+        console.log(`${amount} item${amount > 1 ? 's' : ''} at\tADA ${p}`);
       }
       console.log(`=====================================`);
       if (!fs.existsSync(statsFile)) {
@@ -71,8 +75,7 @@ module.exports = async (config, extraData) => {
           const diff = price - previousEntry.price;
           const wrappedDiff = diff < 0 ? `${diff}` : `+${diff}`;
           console.log(
-            `floor changed from last check on ${previousEntry.timestamp} to ${
-            wrappedDiff} ADA`
+            `floor changed from last check on ${previousEntry.timestamp} to ${wrappedDiff} ADA`
           );
         }
       } else {

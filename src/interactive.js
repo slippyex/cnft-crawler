@@ -15,19 +15,19 @@ let extraData = {};
 
 const keypress = async () => {
   process.stdin.setRawMode(true);
-  return new Promise(resolve => process.stdin.once('data', () => {
-    process.stdin.setRawMode(false);
-    resolve();
-  }));
-}
+  return new Promise((resolve) =>
+    process.stdin.once('data', () => {
+      process.stdin.setRawMode(false);
+      resolve();
+    })
+  );
+};
 
 (async function () {
   clear();
 
   console.log(
-    chalk.yellow(
-      figlet.textSync('CNFT toolkit', { horizontalLayout: 'full' })
-    )
+    chalk.yellow(figlet.textSync('CNFT toolkit', {horizontalLayout: 'full'}))
   );
   const config = await questionary.askCrawlerSettings(conf);
   config.queryPrefix = `pricemin=${config.minPrice}&pricemax=${

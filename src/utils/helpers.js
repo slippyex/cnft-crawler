@@ -36,7 +36,9 @@ module.exports.estimateRarity = (processedItem, config, rarityChart) => {
       // but in any case check for the extraTags
       if ((config.extraTags || []).length > 0) {
         for (const et of config.extraTags) {
-          if (String(itemValue).toLowerCase().indexOf(et.toLowerCase()) !== -1) {
+          if (
+            String(itemValue).toLowerCase().indexOf(et.toLowerCase()) !== -1
+          ) {
             trait.exceptional = true;
           }
         }
@@ -82,7 +84,7 @@ module.exports.transformEntry = (project, entry, extraData) => {
 
   for (const stat of entry.metadata.tags) {
     const name = Object.keys(stat)[0];
- //   processedItem.name = name;
+    //   processedItem.name = name;
     if (name === 'Race') {
       processedItem.stats.race = stat[name][0];
     }
@@ -127,4 +129,4 @@ const unnestObject = (stat, name, processedItem) => {
     // filter out undefined or empty attributes
     processedItem.stats[name] = stat;
   }
-}
+};

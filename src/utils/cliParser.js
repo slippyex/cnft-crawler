@@ -24,7 +24,8 @@ module.exports = () => {
     {
       name: 'policy',
       type: String,
-      description: 'if checking for unverified projects, you can pass in a policy id'
+      description:
+        'if checking for unverified projects, you can pass in a policy id'
     },
     {
       name: 'floor',
@@ -43,7 +44,8 @@ module.exports = () => {
     {
       name: 'top',
       type: Number,
-      description: 'if given, we just filter on the top-n entries (based on rank, if available)'
+      description:
+        'if given, we just filter on the top-n entries (based on rank, if available)'
     },
     {
       name: 'threshold',
@@ -132,12 +134,13 @@ module.exports = () => {
   //   / /g,
   //   '+'
   // )}${!config.unverified ? '&verified=true' : ''}`;
-  config.queryPrefix = `pricemin=${config.minPrice}&pricemax=${config.maxPrice}&${
-    !config.unverified ? 'sort=price&order=asc' : 'sort=date&order=desc'}&${
-    config.unverified ? 'search' : 'project'}=${config.project.replace(
-    / /g,
-    '+'
-  )}${!config.unverified ? '&verified=true' : ''}`;
+  config.queryPrefix = `pricemin=${config.minPrice}&pricemax=${
+    config.maxPrice
+  }&${!config.unverified ? 'sort=price&order=asc' : 'sort=date&order=desc'}&${
+    config.unverified ? 'search' : 'project'
+  }=${config.project.replace(/ /g, '+')}${
+    !config.unverified ? '&verified=true' : ''
+  }`;
 
   return config;
 };
