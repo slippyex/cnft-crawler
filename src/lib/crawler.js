@@ -64,9 +64,9 @@ module.exports = async (config, extraData, returnResults, progress) => {
     console.log(
       `no rarity score/rank lookup found for project ${config.project} - continuing without evaluation`
     );
-    if (config.filter && config.filter.toLowerCase() === 'rarity') {
-      config.filter = 'all';
-    }
+    // if (config.filter && config.filter.toLowerCase() === 'rarity') {
+    //   config.filter = 'all';
+    // }
   }
 
   try {
