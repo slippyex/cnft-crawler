@@ -4,3 +4,5 @@ dist/floor-stats.json
 sandbox.js
 .env
 auth-token
+config.json
+out.log

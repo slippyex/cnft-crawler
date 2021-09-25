@@ -2,6 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const _ = require('lodash');
 const helpers = require('../utils/helpers');
+const chalk = require('chalk');
 
 /**
  * crawls through results of a given project (ordered by price asc)
@@ -10,14 +11,19 @@ const helpers = require('../utils/helpers');
  *
  * @param config
  * @param extraData
- * @returns {Promise<void>}
+ * @param returnResults
+ * @param progress
+ * @return
  */
-module.exports = async (config, extraData) => {
+module.exports = async (config, extraData, returnResults, progress) => {
   let rarityChart = {};
+  let rarityScores = {};
 
-  console.log(
-    `entering cnft crawler with config: \n${JSON.stringify(config, null, 2)}`
-  );
+  if (!returnResults) {
+    console.log(
+      `entering cnft crawler with config: \n${JSON.stringify(config, null, 2)}`
+    );
+  }
 
   try {
     // checks for a rarity chart drop-in for the given project
@@ -40,6 +46,29 @@ module.exports = async (config, extraData) => {
       config.filter = 'all';
     }
   }
+
+  try {
+    // checks for a rarity chart drop-in for the given project
+    rarityScores = JSON.parse(
+      fs
+        .readFileSync(
+          `${__dirname}/../../rarities/${config.project}/rarity_ranks.json`
+        )
+        .toString()
+    );
+
+    console.log(
+      `we found a rarity score/rank for project ${config.project} - using it to derive overall rarity now`
+    );
+  } catch (err) {
+    console.log(
+      `no rarity score/rank lookup found for project ${config.project} - continuing without evaluation`
+    );
+    if (config.filter && config.filter.toLowerCase() === 'rarity') {
+      config.filter = 'all';
+    }
+  }
+
   try {
     const query = `${config.queryPrefix}&page=1`;
 
@@ -50,16 +79,28 @@ module.exports = async (config, extraData) => {
         ? config.maxPages
         : parseFloat(found) / 25
     );
+    let progressBar = null;
+    if (progress) {
+      progressBar = new progress(pages);
+    }
+    const collectReturnedPages = [];
     for (let page = 1; page <= pages; page++) {
-      console.log(`crawling page ${page} of ${pages}`);
+      if (progressBar) {
+        process.stdout.write('\rcrawling in progress: ' + progressBar.update(page, pages));
+      } else {
+        console.log(`crawling page ${page} of ${pages}`);
+      }
       const crawlingResults = await crawlPageData(
         page,
         config,
         extraData,
-        rarityChart
+        rarityChart,
+        rarityScores
       );
       let filteredResults = crawlingResults;
-      if (
+      if (config.top && Object.keys(rarityScores).length > 0) {
+        filteredResults = crawlingResults.filter((o) => o.rarityRank !== -1 && o.rarityRank <= config.top);
+      } else if (
         config.filter &&
         ['rarity', 'extratags'].includes(config.filter.toLowerCase())
       ) {
@@ -67,8 +108,13 @@ module.exports = async (config, extraData) => {
           config.filter === 'rarity' ? o.worthChecking : o.exceptional
         );
       }
-      presentData(filteredResults, config.fakes);
+      if (!returnResults) {
+        presentData(filteredResults, config.fakes);
+      } else {
+        collectReturnedPages.push(filteredResults);
+      }
     }
+    return collectReturnedPages;
   } catch (err) {
     if (err.data) {
       console.log(err.data);
@@ -84,9 +130,10 @@ module.exports = async (config, extraData) => {
  * @param config
  * @param extraData
  * @param rarityChart
+ * @param rarityScore
  * @returns {Promise<*[]>}
  */
-const crawlPageData = async (page, config, extraData, rarityChart) => {
+const crawlPageData = async (page, config, extraData, rarityChart, rarityScore) => {
   const query = `${config.queryPrefix}&page=${page}`;
 
   const res = await axios.post(`https://api.cnft.io/market/listings`, query);
@@ -107,6 +154,11 @@ const crawlPageData = async (page, config, extraData, rarityChart) => {
 
     helpers.estimateRarity(processedItem, config, rarityChart);
 
+    if (Object.keys(rarityScore).length > 0) {
+      const rankScore = rarityScore[processedItem.name];
+      processedItem.rarityScore = (rankScore || {score: -1}).score;
+      processedItem.rarityRank = (rankScore || {rank: -1}).rank;
+    }
     if (processedItem.worthChecking) {
       processedItem.link = `at least ${config.minTrigger + 1} items below ${
         config.threshold
@@ -124,9 +176,12 @@ const crawlPageData = async (page, config, extraData, rarityChart) => {
 const presentData = (filteredResults, fakeCheck) => {
   for (const entry of filteredResults) {
     console.log(
-      `${entry.name} - price ${entry.price} ADA ${
+      chalk`${entry.name} - price {red {bold ${entry.price} ADA}} {yellow ${
+        entry.rarityScore > -1 ? '- score: ' + entry.rarityScore : ''}${
+        entry.rarityRank > -1 ? ' - rank: ' + entry.rarityRank : ''
+      }}${
         entry.overallRarity > 0
-          ? '- overall rarity ' + entry.overallRarity + '%'
+          ? ' - overall rarity ' + entry.overallRarity + '%'
           : ''
       }`
     );
@@ -146,3 +201,4 @@ const presentData = (filteredResults, fakeCheck) => {
     console.log(`============================`);
   }
 };
+module.exports.presentData = presentData;

@@ -2,7 +2,9 @@ const axios = require('axios');
 const dayjs = require('dayjs');
 const fs = require('fs');
 const _ = require('lodash');
-const helpers = require('../utils/helpers');
+const chalk = require('chalk');
+const figlet = require('figlet');
+const clear = require('clear');
 
 const statsFile = __dirname + '/../../dist/floor-stats.json';
 /**
@@ -27,17 +29,33 @@ module.exports = async (config, extraData) => {
       `https://api.cnft.io/market/listings`,
       query
     );
-    const firstItem = _.get(resFloor, 'data.assets[0]', {});
-    if (Object.keys(firstItem).length > 0) {
-      const processedItem = helpers.transformEntry(
-        config.project,
-        firstItem,
-        extraData
-      );
+
+    const assets = _.get(resFloor, 'data.assets', []);
+
+    if (assets.length > 1) {
+      const firstItem = assets[0];
+      const maxLength = Math.min(assets.length, 25);
+      const groupedByPrice = _.groupBy(assets.slice(0, maxLength), 'price');
+      const meanFloor = _.round(_.mean(Object.keys(groupedByPrice).map(o => parseInt(o) / 1000000 )));
       const price = firstItem.price / 1000000;
+      clear();
       console.log(
-        `Current floor for project ${config.project} is ${price} ADA`
+        chalk.yellow(
+          figlet.textSync('CNFT toolkit', { horizontalLayout: 'full' })
+        )
       );
+      console.log(
+        chalk`\nCurrent floor for project ${config.project} is {red {bold {underline ${price}}}} ADA`
+      );
+      console.log(chalk`\nBased on the first ${maxLength} items, the mean floor is at {yellow {bold {underline ${meanFloor}}}} ADA`);
+      console.log(`\nin detail these are:`);
+      console.log(`=====================================`);
+      for (const entry of Object.keys(groupedByPrice)) {
+        const p = parseInt(entry) / 1000000;
+        const amount = groupedByPrice[entry].length;
+        console.log(`${amount} item${amount > 1 ? 's': ''} at\tADA ${p}`);
+      }
+      console.log(`=====================================`);
       if (!fs.existsSync(statsFile)) {
         fs.writeFileSync(statsFile, '{}');
       }
@@ -51,10 +69,10 @@ module.exports = async (config, extraData) => {
         if (previousEntry.price !== price) {
           floorEntries.unshift({price, timestamp: dayjs().format()});
           const diff = price - previousEntry.price;
+          const wrappedDiff = diff < 0 ? `${diff}` : `+${diff}`;
           console.log(
             `floor changed from last check on ${previousEntry.timestamp} to ${
-              diff > 0 ? '+' : ''
-            }${diff} ADA`
+            wrappedDiff} ADA`
           );
         }
       } else {

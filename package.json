@@ -15,11 +15,22 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.4",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.10.1",
+    "chalk": "^4.1.2",
+    "clear": "^0.1.0",
+    "cli-color": "^2.0.0",
+    "cli-interact": "^0.1.9",
+    "clui": "^0.3.6",
     "command-line-args": "^5.2.0",
     "command-line-usage": "^6.1.1",
+    "configstore": "^6.0.0",
     "dayjs": "^1.10.7",
     "dotenv": "^10.0.0",
-    "lodash": "^4.17.21"
+    "figlet": "^1.5.2",
+    "inquirer": "^8.1.5",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.5"
   },
   "devDependencies": {
     "prettier": "^2.4.0"

@@ -41,6 +41,11 @@ module.exports = () => {
     {name: 'minPrice', type: Number, description: 'minimal price to look for'},
     {name: 'maxPrice', type: Number, description: 'maximal price to look for'},
     {
+      name: 'top',
+      type: Number,
+      description: 'if given, we just filter on the top-n entries (based on rank, if available)'
+    },
+    {
       name: 'threshold',
       alias: 't',
       type: Number,
@@ -120,11 +125,19 @@ module.exports = () => {
     console.log(`--filter can just be one of "extraTags", "traits" or "all"`);
     process.exit(-1);
   }
-  config.queryPrefix = `pricemin=${config.minPrice}&pricemax=${
-    config.maxPrice
-  }&sort=price&order=asc&project=${config.project.replace(
+  // config.queryPrefix = `${!config.unverified ? 'pricemin=' + config.minPrice + '&pricemax=' +
+  //   config.maxPrice + '&' : ''}${
+  //   !config.unverified ? 'sort=price&order=asc' : 'sort=date&order=desc'}&${
+  //   config.unverified ? 'search' : 'project'}=${config.project.replace(
+  //   / /g,
+  //   '+'
+  // )}${!config.unverified ? '&verified=true' : ''}`;
+  config.queryPrefix = `pricemin=${config.minPrice}&pricemax=${config.maxPrice}&${
+    !config.unverified ? 'sort=price&order=asc' : 'sort=date&order=desc'}&${
+    config.unverified ? 'search' : 'project'}=${config.project.replace(
     / /g,
     '+'
-  )}&verified=${!config.unverified}`;
+  )}${!config.unverified ? '&verified=true' : ''}`;
+
   return config;
 };

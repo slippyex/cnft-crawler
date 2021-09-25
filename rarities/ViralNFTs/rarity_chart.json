@@ -1,0 +1,83 @@
+{
+  "background": {
+    "Premium Space with Planets!": 204,
+    "Premium Space": 213,
+    "Space": 522,
+    "Space with Planets!": 530,
+    "Blue": 899,
+    "Purple": 902,
+    "Yellow": 925,
+    "Black": 930,
+    "Green": 930,
+    "Red": 973
+  },
+  "body": {
+    "Iridescent Ethereum Type 3": 100,
+    "Iridescent Ethereum Type 2": 101,
+    "Golden Ethereum Type 3": 107,
+    "Iridescent Bitcoin Type 3": 112,
+    "Iridescent Bitcoin Type 2": 113,
+    "Iridescent Ethereum Type 1": 114,
+    "Golden Ethereum Type 1": 117,
+    "Iridescent Bitcoin Type 1": 119,
+    "Golden Ethereum Type 2": 123,
+    "Golden Bitcoin Type 3": 123,
+    "Golden Bitcoin Type 2": 127,
+    "Golden Bitcoin Type 1": 133,
+    "Iridescent Type 2": 219,
+    "Iridescent Type 1": 224,
+    "Diamond Type 3": 234,
+    "Diamond Type 2": 238,
+    "Iridescent Type 3": 239,
+    "Diamond Type 1": 248,
+    "Golden Type 2": 435,
+    "Green Type 3": 465,
+    "Red Type 3": 468,
+    "Green Type 2": 470,
+    "Red Type 1": 471,
+    "Green Type 1": 477,
+    "Golden Type 1": 479,
+    "Red Type 2": 480,
+    "Golden Type 3": 492
+  },
+  "eyes": {
+    "Black And Iridescent Eyes": 420,
+    "Black And Gold Eyes": 1006,
+    "Black Eyes": 1795,
+    "Black And Red Eyes": 1892,
+    "Red Eyes": 1915
+  },
+  "jewel": {
+    "Rainboweth1": 1,
+    "Bronze Bitcoin Medallion": 165,
+    "Silver Bitcoin Medallion": 171,
+    "Bronze Ethereum Medallion": 171,
+    "Gold Doge Medallion": 172,
+    "Gold Bitcoin Medallion": 178,
+    "Silver Ethereum Medallion": 178,
+    "Diamond Doge Medallion": 181,
+    "Silver Doge Medallion": 182,
+    "Gold Ethereum Medallion": 186,
+    "Bronze Doge Medallion": 194,
+    "Iridescent Bitcoin Medallion": 195,
+    "Iridescent Ethereum Medallion": 211,
+    "Diamond Bitcoin Medallion": 407,
+    "Diamond Ethereum Medallion": 456,
+    "Iridescent Doge Medallion": 473,
+    "None": 3507
+  },
+  "mouth": {
+    "Iridescent Teeth": 1130,
+    "Angry Mouth": 2324,
+    "Sinister Mouth": 2350,
+    "Cheeky Mouth": 2354,
+    "Gold Teeth": 2468,
+    "White Teeth": 3430
+  },
+  "saliva": {
+    "Toxic Saliva": 1042,
+    "Blood Saliva": 1172,
+    "Saliva": 1391,
+    "None": 3423
+  }
+}
