@@ -1,7 +1,7 @@
 // project name on cnft.tools
-const PROJECT = 'dogsonthechain';
+const PROJECT = 'babyalienclub';
 // project name on cnft.io
-const PROJECT_NAME = 'Dogs on the Chain';
+const PROJECT_NAME = 'BabyAlienClub';
 
 const API_PREFIX = `https://cnft.tools/api/${PROJECT}?sort=ASC&method=rarity`;
 const axios = require('axios');
